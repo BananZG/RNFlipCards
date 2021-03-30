@@ -1,12 +1,12 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-const Game = () => {
+const ScoreboardScreen = () => {
   return (
     <View>
-      <Text>Game</Text>
+      <Text>Scoreboard</Text>
     </View>
   );
 };
 
-export default Game;
+export default ScoreboardScreen;
