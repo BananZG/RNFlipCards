@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import FlipCard from '../../components/FlipGameCard';
 import GameCardsGroup from '../../components/GameCardsGroup';
 import Timer from '../../components/Timer';
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import FlipCard from 'react-native-card-flip';
 import { Card, Text } from 'react-native-paper';
@@ -9,15 +9,15 @@ interface Props {
 }
 
 const FlipGameCard: React.FC<Props> = ({ value, style }) => {
-  const [cardRef, setCardRef] = useState<FlipCard | null>(null);
+  const cardRef = useRef<FlipCard>(null);
   return (
-    <FlipCard style={[styles.cardContainer, style]} ref={setCardRef}>
+    <FlipCard style={[styles.cardContainer, style]} ref={cardRef}>
       <Card
         style={[styles.card, styles.cardFront]}
-        onPress={() => cardRef?.flip()}>
+        onPress={() => cardRef?.current?.flip()}>
         <View style={styles.cardFrontInner} />
       </Card>
-      <Card style={styles.card} onPress={() => cardRef?.flip()}>
+      <Card style={styles.card} onPress={() => cardRef?.current?.flip()}>
         <Text style={styles.timeText}>{value}</Text>
       </Card>
     </FlipCard>
