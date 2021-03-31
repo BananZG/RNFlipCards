@@ -1,34 +1,39 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import FlipCard from 'react-native-card-flip';
 import { Card, Text } from 'react-native-paper';
 
 interface Props extends ViewProps {
+  cardRef: React.RefObject<FlipCard>;
   value: string;
   onCardFlip: (index: number) => void;
 }
 
-const FlipGameCard: React.FC<Props> = ({ value, style, onCardFlip }) => {
-  const cardRef = useRef<FlipCard>(null);
+const FlipGameCard: React.FC<Props> = ({
+  cardRef,
+  value,
+  style,
+  onCardFlip,
+}) => {
   const jiggle = () => {
-    if (cardRef && cardRef.current) {
+    if (cardRef.current) {
       cardRef.current.jiggle({ count: 1, duration: 100, progress: 0.05 });
     }
   };
   const flip = () => {
-    if (cardRef && cardRef.current) {
+    if (cardRef.current) {
       cardRef.current.flip();
     }
   };
   return (
     <FlipCard
-      style={[styles.cardContainer, style]}
+      style={[styles.cardContainer]}
       ref={cardRef}
       onFlipEnd={onCardFlip}>
-      <Card style={[styles.card, styles.cardFront]} onPress={flip}>
+      <Card style={[styles.card, styles.cardFront, style]} onPress={flip}>
         <View style={styles.cardFrontInner} />
       </Card>
-      <Card style={styles.card} onPress={jiggle}>
+      <Card style={[styles.card, style]} onPress={jiggle}>
         <Text style={styles.timeText}>{value}</Text>
       </Card>
     </FlipCard>
@@ -42,7 +47,6 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    margin: 10,
   },
   cardFront: {
     backgroundColor: 'black',
@@ -54,11 +58,10 @@ const styles = StyleSheet.create({
   },
   cardBack: {
     flex: 1,
-    margin: 10,
   },
   timeText: {
     alignSelf: 'center',
-    fontSize: 30,
+    fontSize: 40,
     margin: 10,
     textAlign: 'center',
   },
