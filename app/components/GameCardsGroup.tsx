@@ -8,6 +8,10 @@ export type GameCardsGroupType = {
   resetGame: () => void;
 };
 
+interface GameCardsGroupProps {
+  onWin: () => void;
+}
+
 type GameCard = {
   value: string;
   cardRef: React.RefObject<FlipCard>;
@@ -28,7 +32,10 @@ const defaultGameSet = [
   '🍷',
 ];
 
-const GameCardsGroup = React.forwardRef<GameCardsGroupType>(({}, ref) => {
+const GameCardsGroup = React.forwardRef<
+  GameCardsGroupType,
+  GameCardsGroupProps
+>(({ onWin }, ref) => {
   const getNewGame = (gameSet: string[]) =>
     shuffle(gameSet.reduce((a: string[], b: string) => [...a, b, b], [])).map(
       e => ({
@@ -41,7 +48,7 @@ const GameCardsGroup = React.forwardRef<GameCardsGroupType>(({}, ref) => {
   useImperativeHandle(ref, () => ({
     resetGame: () => {
       setGame([]);
-      setTimeout(() => setGame(getNewGame(defaultGameSet)), 100);
+      setTimeout(() => setGame(getNewGame(defaultGameSet)), 0);
     },
   }));
 
@@ -63,6 +70,10 @@ const GameCardsGroup = React.forwardRef<GameCardsGroupType>(({}, ref) => {
         e.hasFlipped = false;
         e.hasMatched = true;
       });
+      const win = !newGame.some(e => !e.hasMatched);
+      if (win) {
+        onWin();
+      }
     }
     newGame.forEach(e => {
       if (e.hasFlipped) {

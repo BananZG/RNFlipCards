@@ -3,7 +3,9 @@ import { StyleSheet, ViewStyle } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 
 export type TimerType = {
-  resetGame: () => void;
+  time: number;
+  resetTimer: () => void;
+  stopTimer: () => void;
 };
 interface Props {
   startTime: number;
@@ -26,9 +28,13 @@ const Timer = React.forwardRef<TimerType, Props>(
     const [time, setTime] = useState(startTime);
 
     useImperativeHandle(ref, () => ({
-      resetGame: () => {
+      time,
+      resetTimer: () => {
         clearTimeout(countdownTimeout);
         setTime(startTime);
+      },
+      stopTimer: () => {
+        clearTimeout(countdownTimeout);
       },
     }));
 

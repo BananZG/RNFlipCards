@@ -14,13 +14,18 @@ const GameScreen = () => {
   const onTimesUp = useCallback(() => setResult('Game Over!'), []);
   const resetGame = () => {
     setResult(null);
-    timerRef.current?.resetGame();
+    timerRef.current?.resetTimer();
     gameRef.current?.resetGame();
+  };
+  const onWin = () => {
+    timerRef.current?.stopTimer();
+    setResult(`Win with time left: ${timerRef.current?.time}`);
+    // TODO: save into scoreboard
   };
   return (
     <View>
       <Timer ref={timerRef} startTime={gameTime} onTimesUp={onTimesUp} />
-      <GameCardsGroup ref={gameRef} />
+      <GameCardsGroup ref={gameRef} onWin={onWin} />
       {!!result && <Text style={styles.resultText}>{result}</Text>}
       <Button onPress={resetGame}>Reset Game</Button>
     </View>
