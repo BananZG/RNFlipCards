@@ -1,11 +1,12 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, useImperativeHandle, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { shuffle } from 'lodash';
 import FlipGameCard from './FlipGameCard';
-import { Button } from 'react-native-paper';
 import FlipCard from 'react-native-card-flip';
 
-interface Props {}
+export type GameCardsGroupType = {
+  resetGame: () => void;
+};
 
 type GameCard = {
   value: string;
@@ -27,7 +28,7 @@ const defaultGameSet = [
   '🍷',
 ];
 
-const GameCardsGroup: React.FC<Props> = ({}) => {
+const GameCardsGroup = React.forwardRef<GameCardsGroupType>(({}, ref) => {
   const getNewGame = (gameSet: string[]) =>
     shuffle(gameSet.reduce((a: string[], b: string) => [...a, b, b], [])).map(
       e => ({
@@ -37,6 +38,12 @@ const GameCardsGroup: React.FC<Props> = ({}) => {
         cardRef: createRef<FlipCard>(),
       }),
     );
+  useImperativeHandle(ref, () => ({
+    resetGame: () => {
+      setGame([]);
+      setTimeout(() => setGame(getNewGame(defaultGameSet)), 100);
+    },
+  }));
 
   const [game, setGame] = useState<GameCard[]>(getNewGame(defaultGameSet));
   const onCardFlip = (item: string, index: number, hasFlippedUp: boolean) => {
@@ -65,10 +72,6 @@ const GameCardsGroup: React.FC<Props> = ({}) => {
     });
     setGame(newGame);
   };
-  const resetGame = () => {
-    setGame([]);
-    setTimeout(() => setGame(getNewGame(defaultGameSet)), 100);
-  };
   return (
     <View>
       <View style={styles.cardContainer}>
@@ -84,10 +87,9 @@ const GameCardsGroup: React.FC<Props> = ({}) => {
           );
         })}
       </View>
-      <Button onPress={resetGame}>Reset Game</Button>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   cardContainer: {

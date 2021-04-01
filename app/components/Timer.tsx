@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useImperativeHandle, useState } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 
+export type TimerType = {
+  resetGame: () => void;
+};
 interface Props {
   startTime: number;
   alertingTime?: number;
@@ -17,44 +20,52 @@ const formatSeconds = (time: number): string => {
     .padStart(2, '0')}`;
 };
 
-const Timer: React.FC<Props> = ({
-  startTime,
-  alertingTime = 5,
-  onTimesUp,
-  style,
-}) => {
-  const [time, setTime] = useState(startTime);
+let countdownTimeout: ReturnType<typeof setTimeout>;
+const Timer = React.forwardRef<TimerType, Props>(
+  ({ startTime, alertingTime = 5, onTimesUp, style }, ref) => {
+    const [time, setTime] = useState(startTime);
 
-  useEffect(() => {
-    let interval = setInterval(() => {
-      setTime(last => {
-        if (last <= 0) {
-          clearInterval(interval);
-          return last;
-        }
-        return last - 0.5;
-      });
-    }, 500); //each count lasts for half second (for blinking effect)
-    //cleanup the interval on complete
-    return () => clearInterval(interval);
-  }, []);
+    useImperativeHandle(ref, () => ({
+      resetGame: () => {
+        clearTimeout(countdownTimeout);
+        setTime(startTime);
+      },
+    }));
 
-  useEffect(() => {
-    if (time <= 0) {
-      onTimesUp && onTimesUp();
-    }
-  }, [onTimesUp, time]);
+    // Clean up timeouts when the screen is unmounted
+    useEffect(() => {
+      return (): void => {
+        clearTimeout(countdownTimeout);
+      };
+    }, []);
 
-  const isAlerting = time <= alertingTime && time % 1 === 0;
+    useEffect(() => {
+      if (time > 0) {
+        // during alertingTime period, update every 0.5 sec to show blinking effect
+        const multiplier = time <= alertingTime ? 0.5 : 1;
+        countdownTimeout = setTimeout(() => {
+          setTime(time - 1 * multiplier);
+        }, 1000 * multiplier);
+      }
+    }, [alertingTime, time]);
 
-  return (
-    <Card style={[styles.card, style]}>
-      <Text style={[styles.timeText, isAlerting ? styles.redText : {}]}>
-        {formatSeconds(time)}
-      </Text>
-    </Card>
-  );
-};
+    useEffect(() => {
+      if (time <= 0) {
+        onTimesUp && onTimesUp();
+      }
+    }, [onTimesUp, time]);
+
+    const isAlerting = time <= alertingTime && time % 1 === 0;
+
+    return (
+      <Card style={[styles.card, style]}>
+        <Text style={[styles.timeText, isAlerting ? styles.redText : {}]}>
+          {formatSeconds(time)}
+        </Text>
+      </Card>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   card: {
